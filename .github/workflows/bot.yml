@@ -1,0 +1,32 @@
+name: Run Telegram Bot
+
+on:
+  push:
+    branches:
+      - main # Запускаем, когда пушим изменения в ветку main
+  schedule:
+    - cron: '*/1 * * * *' # Каждые минуты
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Setup Lua environment
+        uses: juliancamillo/actions-lua-setup@master
+        with:
+          version: '5.4'
+          
+      - name: Install dependencies
+        run: |
+          sudo apt-get install libssl-dev luarocks curl
+          luarocks install luasocket
+          luarocks install luajson
+          
+      - name: Run the bot script
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+        run: |
+          lua main.lua
